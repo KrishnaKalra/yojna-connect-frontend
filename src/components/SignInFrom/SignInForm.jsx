@@ -24,18 +24,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { base_backend_url } from "../../../constants";
 
 
 const formSchema = z
   .object({
-    name: z.string().min(2, {
+    full_name: z.string().min(2, {
       message: "Username must be at least 2 characters.",
     }),
-    aadharNumber: z
+    aadhaar_number: z
       .string()
       .length(12, { message: "Aadhar Number must be exactly 12 digits." })
       .regex(/^\d{12}$/, { message: "Aadhar Number must contain only digits." }),
-    phoneno: z
+    mobile_number: z
       .string()
       .length(10, { message: "Phone number must be exactly 10 digits." })
       .regex(/^[6-9]\d{9}$/, {
@@ -53,7 +54,7 @@ const formSchema = z
       }, {
         message: "Date of Birth must be a valid date in the past.",
       }),
-    gender: z.enum(["male", "female", "other"], {
+    gender: z.enum(["Male", "Female", "Other"], {
       message: "Gender must be selected.",
     }),
     password: z
@@ -66,15 +67,16 @@ const formSchema = z
         message: "Password must contain at least one lowercase letter.",
       })
       .regex(/[0-9]/, { message: "Password must contain at least one number." })
-      .regex(/[!@#$%^&*]/, {
+      .regex(/[?!@#$%^&*]/, {
         message: "Password must contain at least one special character.",
       }),
-    confirmPassword: z.string(),
+    confirmPass: z.string(),
+    user_type : z.string(),
   })
   .superRefine((data, ctx) => {
-    if (data.password !== data.confirmPassword) {
+    if (data.password !== data.confirmPass) {
       ctx.addIssue({
-        path: ["confirmPassword"],
+        path: ["confirmPass"],
         message: "Passwords do not match.",
         code: z.ZodIssueCode.custom,
       });
@@ -89,37 +91,46 @@ const SignInForm = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      aadhaar_number: "",
+      password: "",
+      user_type: "User",
+      full_name: "",
       dob: "",
       gender: "",
-      phoneno: "",
-      aadharNumber: "",
-      password: "",
-      confirmPassword: "",
-    },
+      mobile_number: "",
+      confirmPass : "",
+      },
   });
-  const { getValues } = form;
 
-  function onSubmit() {
-    const allValues = form.watch();
-    console.log('hi');
-    console.log(allValues);
+  async function onSubmit(data) {
+    const {confirmPass , ...userData} = data;
+    console.log(userData)
+    const res =  await fetch(`${base_backend_url}/auth/signup`,{
+      method : 'POST',
+      headers :{
+        'Content-Type' : 'application/json'
+      },
+      body: JSON.stringify(userData)
+    })
+    const response = await res.json();
+    console.log(response)
+    
   }
 
   const [hiddenPassword, setHiddenPassword] = useState(true);
   function viewPassword() {
-    setHiddenPassword(!hiddenPassword);
+    setHiddenPassword(!hiddenPassword)
   }
 
   return (
-    <Form {...form}>
-      <h1 className="text-2xl font-semibold text-center m-3">
+    <Form {...form} onSubmit={form.handleSubmit(onSubmit)}>
+      <h1 className="text-2xl font-semibold text-center m-3 my-4">
         Create New Account
       </h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="name"
+          name="full_name"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-semibold text-[15px]">
@@ -139,7 +150,7 @@ const SignInForm = () => {
         <div className="flex gap-2 w-[100%] ">
         <FormField
           control={form.control}
-          name="aadharNumber"
+          name="aadhaar_number"
           render={({ field }) => (
             <FormItem className={'w-[50%]'}>
               <FormLabel className="font-semibold text-[15px]">
@@ -147,7 +158,7 @@ const SignInForm = () => {
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Input your email"
+                  placeholder="Input your aadhar Number"
                   className="h-12 "
                   {...field}
                 />
@@ -158,7 +169,7 @@ const SignInForm = () => {
         />
         <FormField
           control={form.control}
-          name="phoneno"
+          name="mobile_number"
           render={({ field }) => (
             <FormItem className={'w-[50%]'}>
               <FormLabel className="font-semibold text-[15px]">
@@ -211,9 +222,9 @@ const SignInForm = () => {
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -259,7 +270,7 @@ const SignInForm = () => {
         />
         <FormField
           control={form.control}
-          name="confirmPassword"
+          name="confirmPass"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-semibold text-[15px]">
@@ -280,7 +291,7 @@ const SignInForm = () => {
           )}
         />
         <Button className="w-[100%] h-12 " type="submit">
-          Login
+          Sign Up
         </Button>
       </form>
     </Form>
