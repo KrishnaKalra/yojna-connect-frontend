@@ -44,15 +44,17 @@ const LoginForm = () => {
   })
 
   async function onSubmit(data) {
-    console.log(data)
     const res = await signIn('userLogin', {
       redirect: false,
       aadhaar_number: data.aadhaar_number,
       password: data.password,
       user_type: 'User'
     })
-    console.log(res)
-
+    if (res && res.ok) {
+      router.push('/schemes');
+    } else {
+      console.log(res);
+    }
   }
 
   const [hiddenPassword, setHiddenPassword] = useState(true);
