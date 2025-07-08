@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter, User, Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,105 +10,62 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SchemeCard } from "@/components/SchemeCard";
 import { FilterPanel } from "@/components/FilterPanel";
 import { StatsOverview } from "@/components/StatsOverview";
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
-const Index = () => {
+const SchemesDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
-
-  // Mock data for schemes
+  const [schemes, setSchemes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  
   // const schemes = [
   //   {
-  //     id: 1,
-  //     title: "PM Kisan Samman Nidhi Yojana",
-  //     description: "Direct income support of Rs 6000 per year to small and marginal farmers",
-  //     category: "Agriculture",
-  //     eligibility: "Small & Marginal Farmers",
-  //     amount: "₹6,000/year",
-  //     deadline: "2024-03-31",
-  //     matchPercentage: 95,
-  //     status: "eligible",
-  //     applicationUrl: "#",
-  //     documents: ["Aadhaar Card", "Bank Details", "Land Records"]
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Pradhan Mantri Awas Yojana",
-  //     description: "Housing scheme for economically weaker sections and low income groups",
-  //     category: "Housing",
-  //     eligibility: "EWS/LIG families",
-  //     amount: "₹2.5 Lakh subsidy",
-  //     deadline: "2024-12-31",
-  //     matchPercentage: 87,
-  //     status: "eligible",
-  //     applicationUrl: "#",
-  //     documents: ["Income Certificate", "Aadhaar Card", "Property Documents"]
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Ayushman Bharat PM-JAY",
-  //     description: "Health insurance scheme providing coverage up to Rs 5 lakh per family",
-  //     category: "Healthcare",
-  //     eligibility: "SECC 2011 beneficiaries",
-  //     amount: "₹5 Lakh coverage",
-  //     deadline: "Ongoing",
-  //     matchPercentage: 72,
-  //     status: "partially_eligible",
-  //     applicationUrl: "#",
-  //     documents: ["Aadhaar Card", "SECC Card", "Family Photo"]
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Mudra Loan Scheme",
-  //     description: "Micro-finance scheme for small business enterprises",
-  //     category: "Business",
-  //     eligibility: "Small business owners",
-  //     amount: "Up to ₹10 Lakh",
-  //     deadline: "Ongoing",
-  //     matchPercentage: 65,
-  //     status: "review_required",
-  //     applicationUrl: "#",
-  //     documents: ["Business Plan", "Aadhaar Card", "Bank Statements"]
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Beti Bachao Beti Padhao",
-  //     description: "Scheme to improve child sex ratio and enable education for girls",
-  //     category: "Education",
-  //     eligibility: "Girl child families",
-  //     amount: "Various benefits",
-  //     deadline: "Ongoing",
-  //     matchPercentage: 58,
-  //     status: "not_eligible",
-  //     applicationUrl: "#",
-  //     documents: ["Birth Certificate", "School Records", "Aadhaar Card"]
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "PM Scholarship Scheme",
-  //     description: "Scholarships for higher education of children of armed forces personnel",
-  //     category: "Education",
-  //     eligibility: "Children of armed forces",
-  //     amount: "₹25,000/year",
-  //     deadline: "2024-02-28",
-  //     matchPercentage: 45,
-  //     status: "not_eligible",
-  //     applicationUrl: "#",
-  //     documents: ["Service Certificate", "Academic Records", "Income Certificate"]
+  //       scheme_name: "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
+  //       sector: "Agriculture",
+  //       scheme_type: "National (Central Sector Scheme)",
+  //       launch_date: "2019-02-19",
+  //       is_active: true,
+  //       website: "https://pmkisan.gov.in/",
+  //       match_score: 0.0
   //   }
   // ];
 
-  const schemes = [
-    {
-        scheme_name: "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
-        sector: "Agriculture",
-        scheme_type: "National (Central Sector Scheme)",
-        launch_date: "2019-02-19",
-        is_active: true,
-        website: "https://pmkisan.gov.in/",
-        match_score: 0.0
-    }
-  ];
+ useEffect(() => {
+    const fetchData = async () => {
+      if (status === 'loading') {
+        return;
+      }
+
+      if (status === 'unauthenticated') {
+        router.push('/login');
+        return; 
+      }
+
+        try {
+          setLoading(true);
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/scheme/show_all`, {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          });
+          setSchemes(response.data);
+        } catch (err) {
+          console.error('Error fetching schemes:', err);
+          if (err.response && err.response.status === 401) {
+            console.log('Token expired or invalid, redirecting to login...');
+            router.push('/login');
+          }
+        } finally {
+          setLoading(false);
+        }
+    };
+    fetchData();
+  }, [status, session]);
 
   const filteredSchemes = schemes.filter(scheme => {
     const matchesSearch = scheme.scheme_name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -117,6 +74,10 @@ const Index = () => {
   });
 
   const categories = ["all", "Agriculture", "Housing", "Healthcare", "Business", "Education"];
+
+  if(loading || status === 'loading'){
+    return <p className="p-4 text-center text-lg">Loading schemes...</p>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -217,4 +178,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default SchemesDashboard;
