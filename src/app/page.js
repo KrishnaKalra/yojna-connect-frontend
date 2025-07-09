@@ -1,9 +1,28 @@
-import Image from "next/image";
+import React from "react";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "100vh",
+      flexDirection: "column"
+    }}>
+      <h1 style={{ fontSize: "3rem" }}>Welcome to Yojna Connect</h1>
+      <a href="/login" style={{
+        marginTop: "2rem",
+        padding: "0.75rem 2rem",
+        fontSize: "1.25rem",
+        backgroundColor: "#1976d2",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        textDecoration: "none",
+        cursor: "pointer"
+      }}>
+        Login
+      </a>
     </div>
   );
 }

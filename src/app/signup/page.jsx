@@ -1,5 +1,10 @@
 import React from 'react'
 import SignInForm from '@/components/SignInFrom/SignInForm'
+
+export const metadata = {
+  title: 'Yojana Connect: Sign Up',
+};
+
 function singIn() {
   return (
     <div className='h-[100vh] w-[100vw] flex justify-center items-center'>
