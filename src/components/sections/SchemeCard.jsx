@@ -139,15 +139,18 @@ export const SchemeCard = ({ scheme }) => {
                       size="sm"
                       asChild
                       disabled={scheme.status === "not_eligible"}
+                      onClick={e => e.stopPropagation()}
                     >
                       <a href={scheme.website} target="_blank" rel="noopener noreferrer">
                         Apply Now
                         <ExternalLink className="h-3 w-3 ml-1" />
                       </a>
                     </Button>
-                    {/* <Button variant="outline" size="sm">
-                      Details
-                    </Button> */}
+                    <Button variant="outline" size="sm">
+                      <a href={`/scheme-details/${scheme.scheme_id}`} target="_blank" rel="noopener noreferrer">
+                        Details
+                      </a>
+                    </Button>
           </div>
         </div>
       </CardContent>
