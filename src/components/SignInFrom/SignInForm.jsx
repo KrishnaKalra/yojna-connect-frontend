@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { base_backend_url } from "../../../constants";
 
 
 const formSchema = z
@@ -105,7 +104,7 @@ const SignInForm = () => {
   async function onSubmit(data) {
     const {confirmPass , ...userData} = data;
     console.log(userData)
-    const res =  await fetch(`${base_backend_url}/auth/signup`,{
+    const res =  await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/signup`,{
       method : 'POST',
       headers :{
         'Content-Type' : 'application/json'

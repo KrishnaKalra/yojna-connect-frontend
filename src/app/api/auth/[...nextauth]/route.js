@@ -1,5 +1,4 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { base_backend_url } from '../../../../../constants'
 import NextAuth from 'next-auth'
 
 export const authOptions = {
@@ -16,7 +15,7 @@ export const authOptions = {
                 if (!credentials) return null
                 const { aadhaar_number , password , user_type} = credentials
 
-                const res = await fetch(`${base_backend_url}/auth/login`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

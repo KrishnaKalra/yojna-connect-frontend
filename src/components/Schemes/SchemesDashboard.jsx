@@ -13,6 +13,7 @@ import { StatsOverview } from "@/components/sections/StatsOverview";
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Spinner } from "@/components/ui/spinner";
 
 
 const SchemesDashboard = () => {
@@ -23,28 +24,11 @@ const SchemesDashboard = () => {
   const [loading, setLoading] = useState(true);
   const { data: session, status } = useSession();
   const router = useRouter();
-  
-  // const schemes = [
-  //   {
-  //       scheme_name: "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
-  //       sector: "Agriculture",
-  //       scheme_type: "National (Central Sector Scheme)",
-  //       launch_date: "2019-02-19",
-  //       is_active: true,
-  //       website: "https://pmkisan.gov.in/",
-  //       match_score: 0.0
-  //   }
-  // ];
 
  useEffect(() => {
     const fetchData = async () => {
       if (status === 'loading') {
         return;
-      }
-
-      if (status === 'unauthenticated') {
-        router.push('/login');
-        return; 
       }
 
         try {
@@ -76,40 +60,14 @@ const SchemesDashboard = () => {
 
   const categories = ["all", "Agriculture", "Housing", "Healthcare", "Business", "Education"];
 
-  if(loading || status === 'loading'){
-    return <p className="p-4 text-center text-lg">Loading schemes...</p>;
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Header */}
-      {/* <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">YC</span>
-                </div>
-                <h1 className="text-xl font-bold text-gray-900">Yojana Connect</h1>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback>RC</AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-        </div>
-      </header> */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {(loading || status === 'loading') ? (
+          <Spinner />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="space-y-6">
@@ -173,7 +131,9 @@ const SchemesDashboard = () => {
               )}
             </div>
           </div>
-        </div>
+          </div>
+        )}
+        
       </div>
     </div>
   );

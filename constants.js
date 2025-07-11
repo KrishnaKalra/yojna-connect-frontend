@@ -1,1 +1,0 @@
-export const base_backend_url = 'https://yojanaconnect.onrender.com'
