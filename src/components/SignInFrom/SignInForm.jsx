@@ -34,22 +34,25 @@ const formSchema = z
     aadhaar_number: z
       .string()
       .length(12, { message: "Aadhar Number must be exactly 12 digits." })
-      .regex(/^\d{12}$/, { message: "Aadhar Number must contain only digits." }),
+      .regex(/^\d{12}$/, {
+        message: "Aadhar Number must contain only digits.",
+      }),
     mobile_number: z
       .string()
       .length(10, { message: "Phone number must be exactly 10 digits." })
       .regex(/^[6-9]\d{9}$/, {
         message: "Phone number must start with 6, 7, 8, or 9.",
       }),
-    dob: z
-      .string()
-      .refine((dateStr) => {
+    dob: z.string().refine(
+      (dateStr) => {
         const inputDate = new Date(dateStr);
         const now = new Date();
         return !isNaN(inputDate.getTime()) && inputDate < now;
-      }, {
+      },
+      {
         message: "Date of Birth must be a valid date in the past.",
-      }),
+      }
+    ),
     gender: z.enum(["Male", "Female", "Other"], {
       message: "Gender must be selected.",
     }),
@@ -98,13 +101,16 @@ const SignInForm = () => {
   async function onSubmit(data) {
     const { confirmPass, ...userData } = data;
     console.log(userData);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/signup`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      }
+    );
     const response = await res.json();
     console.log(response);
   }
@@ -129,7 +135,11 @@ const SignInForm = () => {
                 Name<span className="text-red-600">*</span>
               </FormLabel>
               <FormControl>
-                <Input placeholder="Input your name" className="h-12 " {...field} />
+                <Input
+                  placeholder="Input your name"
+                  className="h-12 "
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -146,7 +156,11 @@ const SignInForm = () => {
                   Aadhar Number<span className="text-red-600">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Aadhar Number" className="h-12" {...field} />
+                  <Input
+                    placeholder="Enter Aadhar Number"
+                    className="h-12"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,7 +175,11 @@ const SignInForm = () => {
                   Phone Number<span className="text-red-600">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Phone Number" className="h-12" {...field} />
+                  <Input
+                    placeholder="Enter Phone Number"
+                    className="h-12"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -174,17 +192,22 @@ const SignInForm = () => {
             control={form.control}
             name="dob"
             render={({ field }) => (
-              <FormItem className="w-1/3">
+              <FormItem className="w-full ">
                 <FormLabel className="font-semibold text-[15px]">
-                  Date of Birth<span className="text-red-600">*</span>
+                  DOB<span className="text-red-600">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input type="date" className="h-12" {...field} />
+                  <Input
+                    type="date"
+                    className="h-12 w-full appearance-none"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="gender"
@@ -195,7 +218,7 @@ const SignInForm = () => {
                 </FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="h-12 w-full">
+                    <SelectTrigger className="!h-12 w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -248,7 +271,12 @@ const SignInForm = () => {
                 Confirm Password<span className="text-red-600">*</span>
               </FormLabel>
               <FormControl>
-                <Input placeholder="Re-enter password" className="h-12" type="password" {...field} />
+                <Input
+                  placeholder="Re-enter password"
+                  className="h-12"
+                  type="password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
