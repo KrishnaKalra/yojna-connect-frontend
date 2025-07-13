@@ -1,29 +1,70 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { Spinner } from "@/components/ui/spinner";
+import { useRouter } from 'next/navigation';
+
 
 const EditProfilePage = () => {
-  const [formData, setFormData] = useState({
-    full_name: "John Doe",
-    dob: "1990-01-15",
-    gender: "Male",
-    mobile_number: "+91 9876543210",
-    marital_status: true,
-    occupation: "Software Engineer",
-    annual_income: 800000,
-    annual_family_income: 1200000,
-    bank_account_number: "1234567890123456",
-    caste_category: "General",
-    is_disable: false,
-    bpl: "No",
-    user_address: {
-      aadhaar_number: "1234 5678 9012",
-      state: "Bihar",
-      district: "Patna",
-      village_or_city: "Patna",
-      exact_address: "123 Main Street, Boring Road",
-      pincode: 800001
-    }
-  });
+  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
+  const [initialData, setInitialData] = useState({});
+  const [formData, setFormData] = useState({});
+  const router = useRouter();
+
+  useEffect(() => {
+      const fetchData = async () => {
+        if (status === 'loading') {
+          return;
+        }
+          try {
+            setLoading(true);
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/profile`, {
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            });
+            // Replace null fields with a message, including nested user_address
+            const data = response.data;
+            const dataWithDefaults = {
+              ...data,
+              full_name: data.full_name ?? "Not Provided",
+              aadhaar_number: data.aadhaar_number ?? "Not Provided",
+              dob: data.dob ?? "Not Provided",
+              gender: data.gender ?? "Not Provided",
+              mobile_number: data.mobile_number ?? "Not Provided",
+              marital_status: data.marital_status ?? false,
+              occupation: data.occupation ?? "Not Provided",
+              annual_income: data.annual_income ?? 0,
+              annual_family_income: data.annual_family_income ?? 0,
+              bank_account_number: data.bank_account_number ?? "Not Provided",
+              caste_category: data.caste_category ?? "Not Provided",
+              is_disable: data.is_disable ?? false,
+              bpl: data.bpl ?? "Not Provided",
+              user_address: {
+                aadhaar_number: data.user_address?.aadhaar_number ?? "Not Provided",
+                state: data.user_address?.state ?? "Not Provided",
+                district: data.user_address?.district ?? "Not Provided",
+                village_or_city: data.user_address?.village_or_city ?? "Not Provided",
+                exact_address: data.user_address?.exact_address ?? "Not Provided",
+                pincode: data.user_address?.pincode ?? "Not Provided",
+              }
+            };
+            setFormData(dataWithDefaults);
+            setInitialData(dataWithDefaults);
+          } catch (err) {
+            console.error('Error fetching schemes:', err);
+            if (err.response && err.response.status === 401) {
+              console.log('Token expired or invalid, redirecting to login...');
+              router.push('/login');
+            }
+          } finally {
+            setLoading(false);
+          }
+      };
+      fetchData();
+  }, [status, session]);
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -46,19 +87,41 @@ const EditProfilePage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // do something durgesh bhai
+    try {
+    setLoading(true);
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/profile/edit`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      }
+    );
+    router.push('/profile');
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    if (err.response && err.response.status === 401) {
+      console.log('Token expired or invalid, redirecting to login...');
+      router.push('/login');
+    }
+  } finally {
+    setLoading(false);
+  }
   };
 
   const handleCancel = () => {
-    // again do something durgesh bhai
+    setFormData(initialData);
     console.log('Form cancelled');
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+    {(loading || status === 'loading') ? (
+        <Spinner />
+      ) : (
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Edit Profile</h1>
@@ -80,7 +143,7 @@ const EditProfilePage = () => {
                   <input
                     type="text"
                     name="full_name"
-                    value={formData.full_name}
+                    value={formData.full_name} // Required field, keep as-is
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -93,7 +156,7 @@ const EditProfilePage = () => {
                   <input
                     type="date"
                     name="dob"
-                    value={formData.dob}
+                    value={formData.dob} // Required field, keep as-is
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -105,10 +168,11 @@ const EditProfilePage = () => {
                   </label>
                   <select
                     name="gender"
-                    value={formData.gender}
+                    value={formData.gender === "Not Provided" ? "" : formData.gender} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
+                    <option value="">Select Gender</option> {/* Add empty option for non-required */}
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
@@ -121,7 +185,7 @@ const EditProfilePage = () => {
                   <input
                     type="tel"
                     name="mobile_number"
-                    value={formData.mobile_number}
+                    value={formData.mobile_number} // Required field, keep as-is
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -134,10 +198,9 @@ const EditProfilePage = () => {
                   <input
                     type="text"
                     name="occupation"
-                    value={formData.occupation}
+                    value={formData.occupation === "Not Provided" ? "" : formData.occupation} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
                 <div>
@@ -146,10 +209,11 @@ const EditProfilePage = () => {
                   </label>
                   <select
                     name="caste_category"
-                    value={formData.caste_category}
+                    value={formData.caste_category === "Not Provided" ? "" : formData.caste_category} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
+                    <option value="">Select Caste Category</option> {/* Add empty option for non-required */}
                     <option value="General">General</option>
                     <option value="OBC">OBC</option>
                     <option value="SC">SC</option>
@@ -162,10 +226,11 @@ const EditProfilePage = () => {
                   </label>
                   <select
                     name="bpl"
-                    value={formData.bpl}
+                    value={formData.bpl === "Not Provided" ? "" : formData.bpl} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
+                    <option value="">Select BPL Status</option> {/* Add empty option for non-required */}
                     <option value="Yes">Yes</option>
                     <option value="No">No</option>
                   </select>
@@ -177,20 +242,19 @@ const EditProfilePage = () => {
                   <input
                     type="text"
                     name="bank_account_number"
-                    value={formData.bank_account_number}
+                    value={formData.bank_account_number === "Not Provided" ? "" : formData.bank_account_number} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
               </div>
-              
+
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     name="marital_status"
-                    checked={formData.marital_status}
+                    checked={formData.marital_status} // Checkbox, no "Not Provided" handling needed
                     onChange={handleInputChange}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
@@ -202,7 +266,7 @@ const EditProfilePage = () => {
                   <input
                     type="checkbox"
                     name="is_disable"
-                    checked={formData.is_disable}
+                    checked={formData.is_disable} // Checkbox, no "Not Provided" handling needed
                     onChange={handleInputChange}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
@@ -228,11 +292,10 @@ const EditProfilePage = () => {
                   <input
                     type="number"
                     name="annual_income"
-                    value={formData.annual_income}
+                    value={formData.annual_income === 0 ? "" : formData.annual_income} // Non-required, show empty if 0
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     min="0"
-                    required
                   />
                 </div>
                 <div>
@@ -242,11 +305,10 @@ const EditProfilePage = () => {
                   <input
                     type="number"
                     name="annual_family_income"
-                    value={formData.annual_family_income}
+                    value={formData.annual_family_income === 0 ? "" : formData.annual_family_income} // Non-required, show empty if 0
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     min="0"
-                    required
                   />
                 </div>
               </div>
@@ -267,10 +329,9 @@ const EditProfilePage = () => {
                   <input
                     type="text"
                     name="user_address.state"
-                    value={formData.user_address.state}
+                    value={formData.user_address.state === "Not Provided" ? "" : formData.user_address.state} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
                 <div>
@@ -280,10 +341,9 @@ const EditProfilePage = () => {
                   <input
                     type="text"
                     name="user_address.district"
-                    value={formData.user_address.district}
+                    value={formData.user_address.district === "Not Provided" ? "" : formData.user_address.district} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
                 <div>
@@ -293,10 +353,9 @@ const EditProfilePage = () => {
                   <input
                     type="text"
                     name="user_address.village_or_city"
-                    value={formData.user_address.village_or_city}
+                    value={formData.user_address.village_or_city === "Not Provided" ? "" : formData.user_address.village_or_city} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
                 <div>
@@ -306,10 +365,9 @@ const EditProfilePage = () => {
                   <input
                     type="number"
                     name="user_address.pincode"
-                    value={formData.user_address.pincode}
+                    value={formData.user_address.pincode === "Not Provided" ? "" : formData.user_address.pincode} // Non-required, show empty if "Not Provided"
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
                 <div>
@@ -319,7 +377,7 @@ const EditProfilePage = () => {
                   <input
                     type="text"
                     name="user_address.aadhaar_number"
-                    value={formData.user_address.aadhaar_number}
+                    value={formData.user_address.aadhaar_number} // Required field, keep as-is
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -332,11 +390,10 @@ const EditProfilePage = () => {
                 </label>
                 <textarea
                   name="user_address.exact_address"
-                  value={formData.user_address.exact_address}
+                  value={formData.user_address.exact_address === "Not Provided" ? "" : formData.user_address.exact_address} // Non-required, show empty if "Not Provided"
                   onChange={handleInputChange}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
                 />
               </div>
             </div>
@@ -360,6 +417,7 @@ const EditProfilePage = () => {
           </div>
         </form>
       </div>
+      )}
     </div>
   );
 };
