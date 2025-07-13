@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import Link from "next/link"; // 👈 Import Link for routing
+
+import Link from "next/link";
 
 // Validation schema
 const formSchema = z
@@ -106,6 +107,9 @@ const SignInForm = () => {
       body: JSON.stringify(userData),
     });
     const response = await res.json();
+    if (res.ok) {
+      router.push('/login')
+    }
     console.log(response);
   }
 
