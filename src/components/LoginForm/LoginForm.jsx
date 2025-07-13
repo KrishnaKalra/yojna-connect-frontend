@@ -62,47 +62,61 @@ const LoginForm = () => {
     setHiddenPassword(!hiddenPassword);
   }
 
-  return (
-    <Form {...form} onSubmit={form.handleSubmit(onSubmit)}>
-      <h1 className='text-2xl font-semibold text-center m-3'>Login to your Account</h1>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="aadhaar_number"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='font-semibold text-[15px]'>Aadhar Number<span className='text-red-600'>*</span></FormLabel>
-              <FormControl>
-                <Input placeholder="Input your name" className='h-12 ' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+ return (
+  <Form {...form} onSubmit={form.handleSubmit(onSubmit)}>
+    <h1 className='text-2xl font-semibold text-center m-3'>Login to your Account</h1>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <FormField
+        control={form.control}
+        name="aadhaar_number"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='font-semibold text-[15px]'>
+              Aadhar Number<span className='text-red-600'>*</span>
+            </FormLabel>
+            <FormControl>
+              <Input placeholder="Input your name" className='h-12 ' {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='font-semibold text-[15px]'>Password<span className='text-red-600'>*</span></FormLabel>
-              <div className='flex relative'>
-                <FormControl>
-                  <Input placeholder="Input your password" className='h-12 ' type={hiddenPassword ? 'password' : 'text'} {...field} />
-                </FormControl>
-                {hiddenPassword ?
-                  <FontAwesomeIcon className='absolute right-3 top-3.5' onClick={viewPassword} icon={faEye} /> :
-                  <FontAwesomeIcon className='absolute right-3 top-3.5' onClick={viewPassword} icon={faEyeSlash} />
-                }
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button className='w-[100%] h-12 ' type="submit">Login</Button>
-      </form>
-    </Form>
-  )
+      <FormField
+        control={form.control}
+        name="password"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='font-semibold text-[15px]'>
+              Password<span className='text-red-600'>*</span>
+            </FormLabel>
+            <div className='flex relative'>
+              <FormControl>
+                <Input placeholder="Input your password" className='h-12 ' type={hiddenPassword ? 'password' : 'text'} {...field} />
+              </FormControl>
+              {hiddenPassword ? (
+                <FontAwesomeIcon className='absolute right-3 top-3.5 cursor-pointer w-5 h-5' onClick={viewPassword} icon={faEye} />
+              ) : (
+                <FontAwesomeIcon className='absolute right-3 top-3.5 cursor-pointer w-5 h-5' onClick={viewPassword} icon={faEyeSlash} />
+              )}
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <Button className='w-[100%] h-12 ' type="submit">Login</Button>
+
+      {/* 👇 Signup Link */}
+      <p className="text-center text-sm">
+        Don&apos;t have an account?{' '}
+        <a href="/signup" className="text-blue-600 hover:underline">
+          Sign up here
+        </a>
+      </p>
+    </form>
+  </Form>
+)
+
 }
 
 export default LoginForm;

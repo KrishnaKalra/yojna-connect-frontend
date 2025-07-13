@@ -8,7 +8,7 @@ export const metadata = {
 function Login() {
   return (
     <div className='h-[100vh] w-[100vw] flex justify-center items-center'>
-        <div className='w-[30%] h-[50%] rounded-2xl shadow-2xl p-10'>
+        <div className='w-[30%] rounded-2xl shadow-2xl p-10'>
             <LoginForm/>
         </div>
     </div>

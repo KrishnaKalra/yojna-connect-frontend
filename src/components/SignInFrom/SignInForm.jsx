@@ -16,7 +16,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,8 +23,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import Link from "next/link"; // 👈 Import Link for routing
 
-
+// Validation schema
 const formSchema = z
   .object({
     full_name: z.string().min(2, {
@@ -46,10 +46,7 @@ const formSchema = z
       .refine((dateStr) => {
         const inputDate = new Date(dateStr);
         const now = new Date();
-        return (
-          !isNaN(inputDate.getTime()) &&
-          inputDate < now
-        );
+        return !isNaN(inputDate.getTime()) && inputDate < now;
       }, {
         message: "Date of Birth must be a valid date in the past.",
       }),
@@ -70,7 +67,7 @@ const formSchema = z
         message: "Password must contain at least one special character.",
       }),
     confirmPass: z.string(),
-    user_type : z.string(),
+    user_type: z.string(),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPass) {
@@ -81,9 +78,6 @@ const formSchema = z
       });
     }
   });
-
-
-
 
 const SignInForm = () => {
   const router = useRouter();
@@ -97,28 +91,27 @@ const SignInForm = () => {
       dob: "",
       gender: "",
       mobile_number: "",
-      confirmPass : "",
-      },
+      confirmPass: "",
+    },
   });
 
   async function onSubmit(data) {
-    const {confirmPass , ...userData} = data;
-    console.log(userData)
-    const res =  await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/signup`,{
-      method : 'POST',
-      headers :{
-        'Content-Type' : 'application/json'
+    const { confirmPass, ...userData } = data;
+    console.log(userData);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData)
-    })
+      body: JSON.stringify(userData),
+    });
     const response = await res.json();
-    console.log(response)
-    
+    console.log(response);
   }
 
   const [hiddenPassword, setHiddenPassword] = useState(true);
   function viewPassword() {
-    setHiddenPassword(!hiddenPassword)
+    setHiddenPassword(!hiddenPassword);
   }
 
   return (
@@ -136,72 +129,57 @@ const SignInForm = () => {
                 Name<span className="text-red-600">*</span>
               </FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Input your name"
-                  className="h-12 "
-                  {...field}
-                />
+                <Input placeholder="Input your name" className="h-12 " {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="flex gap-2 w-[100%] ">
-        <FormField
-          control={form.control}
-          name="aadhaar_number"
-          render={({ field }) => (
-            <FormItem className={'w-[50%]'}>
-              <FormLabel className="font-semibold text-[15px]">
-                Aadhar Number<span className="text-red-600">*</span>
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Input your aadhar Number"
-                  className="h-12 "
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="mobile_number"
-          render={({ field }) => (
-            <FormItem className={'w-[50%]'}>
-              <FormLabel className="font-semibold text-[15px]">
-                Phone Number<span className="text-red-600">*</span>
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Input your phone no."
-                  className="h-12 w-full"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
+        <div className="flex gap-2 w-full">
+          <FormField
+            control={form.control}
+            name="aadhaar_number"
+            render={({ field }) => (
+              <FormItem className="w-1/2">
+                <FormLabel className="font-semibold text-[15px]">
+                  Aadhar Number<span className="text-red-600">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Aadhar Number" className="h-12" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="mobile_number"
+            render={({ field }) => (
+              <FormItem className="w-1/2">
+                <FormLabel className="font-semibold text-[15px]">
+                  Phone Number<span className="text-red-600">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Phone Number" className="h-12" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-        <div className="flex gap-2 w-[100%] ">
+
+        <div className="flex gap-2 w-full">
           <FormField
             control={form.control}
             name="dob"
             render={({ field }) => (
-              <FormItem className={"w-[35%]"}>
+              <FormItem className="w-1/3">
                 <FormLabel className="font-semibold text-[15px]">
                   Date of Birth<span className="text-red-600">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    type="date"
-                    placeholder="Input your email"
-                    className="h-12 w-full "
-                    {...field}
-                  />
+                  <Input type="date" className="h-12" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -211,13 +189,13 @@ const SignInForm = () => {
             control={form.control}
             name="gender"
             render={({ field }) => (
-              <FormItem className={"w-[65%]"}>
+              <FormItem className="w-2/3">
                 <FormLabel className="font-semibold text-[15px]">
                   Gender<span className="text-red-600">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value} className='w-full !h-12'>
-                    <SelectTrigger className="w-full !h-12">
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="h-12 w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -232,6 +210,7 @@ const SignInForm = () => {
             )}
           />
         </div>
+
         <FormField
           control={form.control}
           name="password"
@@ -243,55 +222,50 @@ const SignInForm = () => {
               <div className="flex relative">
                 <FormControl>
                   <Input
-                    placeholder="Input your password"
-                    className="h-12 "
+                    placeholder="Enter your password"
+                    className="h-12"
                     type={hiddenPassword ? "password" : "text"}
                     {...field}
                   />
                 </FormControl>
-                {hiddenPassword ? (
-                  <FontAwesomeIcon
-                    className="absolute right-3 top-3.5"
-                    onClick={viewPassword}
-                    icon={faEye}
-                  />
-                ) : (
-                  <FontAwesomeIcon
-                    className="absolute right-3 top-3.5"
-                    onClick={viewPassword}
-                    icon={faEyeSlash}
-                  />
-                )}
+                <FontAwesomeIcon
+                  icon={hiddenPassword ? faEye : faEyeSlash}
+                  onClick={viewPassword}
+                  className="absolute right-3 top-3.5 cursor-pointer w-5 h-5 text-gray-600"
+                />
               </div>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="confirmPass"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-semibold text-[15px]">
-               Confirm Password<span className="text-red-600">*</span>
+                Confirm Password<span className="text-red-600">*</span>
               </FormLabel>
-              <div className="flex relative">
-                <FormControl>
-                  <Input
-                    placeholder="Input your password"
-                    className="h-12 "
-                    type="password"
-                    {...field}
-                  />
-                </FormControl>
-              </div>
+              <FormControl>
+                <Input placeholder="Re-enter password" className="h-12" type="password" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button className="w-[100%] h-12 " type="submit">
+
+        <Button className="w-full h-12" type="submit">
           Sign Up
         </Button>
+
+        {/* 👇 Login Link */}
+        <p className="text-center text-sm">
+          Already have an account?{" "}
+          <Link href="/login" className="text-blue-600 hover:underline">
+            Login here
+          </Link>
+        </p>
       </form>
     </Form>
   );

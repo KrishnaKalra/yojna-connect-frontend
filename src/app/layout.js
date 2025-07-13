@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header/Header'
 import SessionProviderWrapper from '@/components/shared/SessionProviderWrapper'
+import '@fortawesome/fontawesome-svg-core/styles.css'
+import { config } from '@fortawesome/fontawesome-svg-core'
+config.autoAddCss = false
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
