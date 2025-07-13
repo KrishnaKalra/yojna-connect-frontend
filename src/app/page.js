@@ -8,8 +8,9 @@ export default function HomePage() {
       alignItems: "center",
       minHeight: "100vh",
       flexDirection: "column"
+  
     }}>
-      <h1 style={{ fontSize: "3rem" }}>Welcome to Yojna Connect</h1>
+      <h1 className="text-center md:text-4xl text-2xl">Welcome to Yojna Connect</h1>
       <a href="/login" style={{
         marginTop: "2rem",
         padding: "0.75rem 2rem",
