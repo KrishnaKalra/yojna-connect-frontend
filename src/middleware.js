@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
-const protectedRoutes = ['/schemes', '/scheme-details'] 
+const protectedRoutes = ['/schemes', '/scheme-details', '/profile', '/edit-profile'] 
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
@@ -15,5 +15,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ['/schemes/:path*', '/scheme-details/:scheme_id*'],
+  matcher: ['/schemes/:path*', '/scheme-details/:scheme_id*', '/profile', '/edit-profile'],
 }
