@@ -8,7 +8,7 @@ export const metadata = {
 function singIn() {
   return (
     <div className='h-[100vh] w-[100vw] flex justify-center items-center'>
-        <div className='w-[30%]  rounded-2xl shadow-2xl p-10'>
+        <div className='w-[90%] md:w-[50%] lg:w-[30%] rounded-2xl shadow-2xl p-10'>
             <SignInForm/>
         </div>
     </div>
