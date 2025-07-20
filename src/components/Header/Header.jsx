@@ -36,6 +36,8 @@ const Header = () => {
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => router.push('/profile')}>My Profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('/schemes')}>My Schemes</DropdownMenuItem>
             <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
