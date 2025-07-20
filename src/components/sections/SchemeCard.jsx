@@ -83,11 +83,11 @@ export const SchemeCard = ({ scheme }) => {
         <div className="mt-3">
           <div className="flex justify-between items-center mb-1">
             <span className="text-sm text-gray-600">Profile Match</span>
-            <span className={`text-sm font-semibold ${getMatchColor(scheme.match_score)}`}>
-              {scheme.match_score}%
+            <span className={`text-sm font-semibold ${getMatchColor(scheme.match_score * 100)}`}>
+              {scheme.match_score * 100}%
             </span>
           </div>
-          <Progress value={scheme.match_score} className="h-2" />
+          <Progress value={scheme.match_score * 100} className="h-2" />
         </div>
       </CardHeader>
 
